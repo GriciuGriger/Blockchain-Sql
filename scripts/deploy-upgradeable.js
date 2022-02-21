@@ -2,8 +2,8 @@ const { ethers, upgrades } = require("hardhat");
 
 async function main() {
 
-    const BChainSql = await ethers.getContractFactory("BaseContract");
-    const proxy = await upgrades.deployProxy(BChainSql, ["NiceToken", "NTK", 21000000], {initializer: "initialize"});
+    const BaseContract = await ethers.getContractFactory("BaseContract");
+    const proxy = await upgrades.deployProxy(BaseContract, ["NiceToken", "NTK", 21000000], {initializer: "initialize"});
     await proxy.deployed();
 
     console.log("Proxy of BaseContract deployed to:", proxy.address)
