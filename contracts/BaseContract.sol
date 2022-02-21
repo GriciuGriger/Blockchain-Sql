@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 
 
-contract BChainSql is Initializable, IERC20Upgradeable, IERC20MetadataUpgradeable {
+contract BaseContract is IERC20Upgradeable, IERC20MetadataUpgradeable {
     //add contractOwner variable
     address public contractOwner;
 
@@ -23,7 +23,7 @@ contract BChainSql is Initializable, IERC20Upgradeable, IERC20MetadataUpgradeabl
         string memory name_,
         string memory symbol_,
         uint256 totalSupply_
-    ) public virtual initializer {
+    ) public {
         contractOwner = msg.sender;
         _name = name_;
         _symbol = symbol_;
@@ -38,7 +38,7 @@ contract BChainSql is Initializable, IERC20Upgradeable, IERC20MetadataUpgradeabl
         address sender,
         address recipient,
         uint256 amount
-    ) external virtual override returns (bool){
+    ) public virtual override returns (bool){
         require(amount <= _balances[sender], "ERC20: transfer amount exceeds balance");    
         require(amount <= _allowances[sender][msg.sender], "ERC20: transfer amount exceeds allowance");
 
@@ -61,7 +61,7 @@ contract BChainSql is Initializable, IERC20Upgradeable, IERC20MetadataUpgradeabl
     }
 
     function transfer(address recipient, uint256 amount)
-        external
+        public
         virtual
         override
         returns (bool)
