@@ -17,7 +17,7 @@ contract Etherable is Lockable {
         _;
     }
 
-    function initialize(uint256 initialPrice) public {
+    function initialize(uint256 initialPrice) public initializer {
         _price = initialPrice;
         _payoutTarget = payable(msg.sender);
         emit MarketPriceChanged(msg.sender, initialPrice);

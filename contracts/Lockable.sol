@@ -11,7 +11,7 @@ contract Lockable is Mintable {
     event LockingPrivilegeStatus(address granter, address granted, bool status);
     event GlobalLockChanged(address locker, bool lock);
 
-    bool private _globalLock = false;
+    bool private _globalLock;
 
     mapping(address => uint256) _deadline;
     mapping(address => bool) _hasLockingPrivilege; 
@@ -85,7 +85,7 @@ contract Lockable is Mintable {
         returns (bool)
     {
 
-        transfer(recipient, amount);
+      return transfer(recipient, amount);
     }
 
      function transferFrom(
@@ -100,7 +100,7 @@ contract Lockable is Mintable {
       noDeadline(recipient)
       returns (bool) {
 
-        transferFrom(sender, recipient, amount);
+       return transferFrom(sender, recipient, amount);
     }
 
     function timeLeft(string memory a, address b, string memory c, uint256 d, string memory e) internal pure returns (string memory) {

@@ -6,7 +6,7 @@ async function main() {
     const proxy = await upgrades.deployProxy(BaseContract, ["NiceToken", "NTK", 21000000], {initializer: "initialize"});
     await proxy.deployed();
 
-    console.log("Proxy of BaseContract deployed to:", proxy.address)
+    console.log("Proxy of BaseContract deployed to: ", proxy.address)
 
 }
 

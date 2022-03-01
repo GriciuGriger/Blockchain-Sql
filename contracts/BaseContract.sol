@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 
 
-contract BaseContract is IERC20Upgradeable, IERC20MetadataUpgradeable {
+contract BaseContract is IERC20Upgradeable, IERC20MetadataUpgradeable, Initializable {
     //add contractOwner variable
     address public contractOwner;
 
@@ -23,7 +23,7 @@ contract BaseContract is IERC20Upgradeable, IERC20MetadataUpgradeable {
         string memory name_,
         string memory symbol_,
         uint256 totalSupply_
-    ) public {
+    ) public initializer {
         contractOwner = msg.sender;
         _name = name_;
         _symbol = symbol_;
