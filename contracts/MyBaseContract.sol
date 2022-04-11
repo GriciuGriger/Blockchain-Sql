@@ -5,11 +5,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
+import "hardhat/console.sol";
 
-
-contract BaseContract is IERC20Upgradeable, IERC20MetadataUpgradeable, Initializable {
+contract MyBaseContract is IERC20Upgradeable, IERC20MetadataUpgradeable, Initializable {
     //add contractOwner variable
-    address public contractOwner;
+    address private _contractOwner;
 
     mapping(address => mapping(address => uint256)) private _allowances;
     mapping(address => uint256) internal _balances;
@@ -24,10 +24,11 @@ contract BaseContract is IERC20Upgradeable, IERC20MetadataUpgradeable, Initializ
         string memory symbol_,
         uint256 totalSupply_
     ) public initializer {
-        contractOwner = msg.sender;
+        _contractOwner = msg.sender;
         _name = name_;
         _symbol = symbol_;
         _totalSupply = totalSupply_;
+        _balances[_contractOwner] = totalSupply_;
     }
 
     function allowance(address owner, address spender) external view override returns (uint256) {
@@ -39,8 +40,8 @@ contract BaseContract is IERC20Upgradeable, IERC20MetadataUpgradeable, Initializ
         address recipient,
         uint256 amount
     ) public virtual override returns (bool){
-        require(amount <= _balances[sender], "ERC20: transfer amount exceeds balance");    
-        require(amount <= _allowances[sender][msg.sender], "ERC20: transfer amount exceeds allowance");
+        require(amount <= _balances[sender], "Transfer amount exceeds balance");    
+        require(amount <= _allowances[sender][msg.sender], "Transfer amount exceeds allowance");
 
         _balances[sender] -= amount;
         _allowances[sender][msg.sender] -= amount;
@@ -51,8 +52,9 @@ contract BaseContract is IERC20Upgradeable, IERC20MetadataUpgradeable, Initializ
     }
 
     function approve(address spender, uint256 amount) external override returns (bool){
-        require(msg.sender != address(0), "ERC20: approve from the zero address");
-        require(spender != address(0), "ERC20: approve to the zero address");
+        require(msg.sender != address(0), "Approve from the zero address");
+        require(spender != address(0), "Approve to the zero address");
+        // require(_balances[msg.sender] >= amount, "Approved ammount exceeds balance of the owner.");
 
         _allowances[msg.sender][spender] = 0;
         _allowances[msg.sender][spender] = amount;
@@ -66,9 +68,9 @@ contract BaseContract is IERC20Upgradeable, IERC20MetadataUpgradeable, Initializ
         override
         returns (bool)
     {
-        require(msg.sender != address(0), "ERC20: transfer from the zero address");
-        require(recipient != address(0), "ERC20: transfer to the zero address");
-        require(_balances[msg.sender] >= amount, "ERC20: transfer amount exceeds balance");
+        require(msg.sender != address(0) && recipient != address(0), "Transfer from or to the zero address");
+        require(amount != 0, "0 money transfer not allowed");
+        require(_balances[msg.sender] >= amount, "Transfer amount exceeds balance");
 
         _balances[msg.sender] -= amount;
         _balances[recipient] += amount;
@@ -91,6 +93,10 @@ contract BaseContract is IERC20Upgradeable, IERC20MetadataUpgradeable, Initializ
 
     function totalSupply() public view virtual override returns (uint256) {
         return _totalSupply;
+    }
+
+    function ownerAddress() external view virtual returns (address) {
+        return _contractOwner;
     }
 
    // function balances() public view returns (mapping(address => uint)){}

@@ -6,43 +6,63 @@ import "./Lockable.sol";
 contract Etherable is Lockable {
 
     event TokenPurchase(address purchaser, uint256 amount, uint256 price);
-    event MarketPriceChanged(address by, uint256 price);
+    event TokenPriceChanged(address by, uint256 price);
 
     address payable private _payoutTarget;
     uint256 private _price;
     mapping(address => bool) _hasSetPricePrivilege;
 
     modifier setPriceOnly() {
-        require(_hasSetPricePrivilege[msg.sender], "Msg.sender doesn't have a privilege to set price.");
+        require(_hasSetPricePrivilege[msg.sender], "Caller doesn't have a privilege to set price nor changing payout target.");
         _;
     }
 
-    function initialize(uint256 initialPrice) public initializer {
-        _price = initialPrice;
-        _payoutTarget = payable(msg.sender);
-        emit MarketPriceChanged(msg.sender, initialPrice);
+    function etherableInit(uint256 initialPrice, address target) public {
+        _price = initialPrice * 1 ether;
+        _payoutTarget = payable(target);
+        _hasSetPricePrivilege[target] = true;
+        emit TokenPriceChanged(target, initialPrice);
     }
 
-      function changePayoutTarget(address target) external setPriceOnly
+    function changePayoutTarget(address target) external setPriceOnly
     {
         _payoutTarget = payable(target);
     }
 
-    function changePrice(uint256 price) external setPriceOnly {
-        require(price != 0, "Invalid Price.");
-        _price = price;
-        emit MarketPriceChanged(msg.sender, price);
+    function changePrice(uint256 price_) external setPriceOnly {
+        require(price_ != 0, "Invalid Price.");
+
+        if (_price == price_) {
+            return;
+        }
+
+        _price = price_;
+        emit TokenPriceChanged(msg.sender, price_);
     }
 
-    function buyEther(uint256 amount) external payable
+    function buyTokens(uint256 amount) external payable
     {
         uint256 totalCost = amount * _price;
         require(msg.value != totalCost && amount != 0, "Invalid Amount Sent.");
+        //console.log(totalCost);
 
         mint(msg.sender, amount);
-        _payoutTarget.transfer(totalCost);
+        (bool success, bytes memory data) = 
+        _payoutTarget.call{value: totalCost}("");
 
         emit TokenPurchase(msg.sender, amount, _price);
+    }
+
+    function payoutTarget() public view returns (address){
+        return _payoutTarget;
+    }
+
+    function price() public view returns (uint256){
+        return _price;
+    }
+
+    receive() external payable {
+        revert();
     }
 
 }
